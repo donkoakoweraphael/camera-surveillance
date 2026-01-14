@@ -1,0 +1,77 @@
+{
+  "CAMERA_FIN_COULOIR_GAUCHE_ETAGE1": {
+    "file": "videos-camera/CAMERA_FIN_COULOIR_GAUCHE_ETAGE1.mp4",
+    "flip": true,
+    "zones": {
+      "zone_entree": [
+        [
+          100,
+          200
+        ],
+        [
+          500,
+          200
+        ],
+        [
+          500,
+          400
+        ],
+        [
+          100,
+          400
+        ]
+      ]
+    }
+  },
+  "CAMERA_ESCALIER_DEBUT_COULOIR_GAUCHE": {
+    "file": "videos-camera/CAMERA_ESCALIER_DEBUT_COULOIR_GAUCHE.mp4",
+    "flip": true,
+    "zones": {}
+  },
+  "CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_2": {
+    "file": "videos-camera/CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_2.MP4",
+    "flip": false,
+    "zones": {}
+  },
+  "CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_1": {
+    "file": "videos-camera/CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_1.MP4",
+    "flip": false,
+    "zones": {}
+  },
+  "CAMERA_DEVANTURE_SOUS_ARBRE": {
+    "file": "videos-camera/CAMERA_DEVANTURE_SOUS_ARBRE.mp4",
+    "flip": true,
+    "zones": {}
+  },
+  "CAMERA_DEVANTURE_PORTE_ENTREE": {
+    "file": "videos-camera/CAMERA_DEVANTURE_PORTE_ENTREE.mp4",
+    "flip": false,
+    "rotate": 90,
+    "zones": {}
+  },
+  "CAMERA_DEBUT_COULOIR_DROIT": {
+    "file": "videos-camera/CAMERA_DEBUT_COULOIR_DROIT.mp4",
+    "flip": true,
+    "zones": {}
+  },
+  "CAMERA_FIN_COULOIR_DROIT": {
+    "file": "videos-camera/CAMERA_FIN_COULOIR_DROIT.mp4",
+    "flip": true,
+    "zones": {}
+  },
+  "CAMERA_HALL_PORTE_GAUCHE": {
+    "file": "videos-camera/CAMERA_HALL_PORTE_GAUCHE.mp4",
+    "flip": false,
+    "zones": {}
+  },
+  "CAMERA_HALL_PORTE_DROITE": {
+    "file": "videos-camera/CAMERA_HALL_PORTE_DROITE.MP4",
+    "flip": false,
+    "zones": {}
+  },
+  "CAMERA_HALL_PORTE_ENTREE": {
+    "file": "videos-camera/CAMERA_HALL_PORTE_ENTREE.mp4",
+    "flip": false,
+    "zones": {}
+  }
+}

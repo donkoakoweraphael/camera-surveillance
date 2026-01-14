@@ -1,0 +1,5 @@
+ultralytics==8.0.152
+opencv-python
+numpy
+scipy
+flask
