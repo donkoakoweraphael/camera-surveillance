@@ -1,6 +1,7 @@
 # Project files to ignore
 videos-camera/
 output/
+output.save/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

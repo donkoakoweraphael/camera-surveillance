@@ -1,77 +1,249 @@
 {
   "CAMERA_FIN_COULOIR_GAUCHE_ETAGE1": {
     "file": "videos-camera/CAMERA_FIN_COULOIR_GAUCHE_ETAGE1.mp4",
+    "start_time": "2025-12-11T12:13:55",
     "flip": true,
     "zones": {
-      "zone_entree": [
+      "zone_alerte": [
         [
-          100,
-          200
+          451,
+          611
         ],
         [
-          500,
-          200
+          436,
+          611
         ],
         [
-          500,
-          400
+          432,
+          805
         ],
         [
-          100,
-          400
+          441,
+          827
+        ],
+        [
+          451,
+          611
         ]
       ]
     }
   },
   "CAMERA_ESCALIER_DEBUT_COULOIR_GAUCHE": {
     "file": "videos-camera/CAMERA_ESCALIER_DEBUT_COULOIR_GAUCHE.mp4",
+    "start_time": "2025-12-11T12:10:00",
     "flip": true,
-    "zones": {}
+    "zones": {
+      "zone_alerte": [
+        [
+          365,
+          282
+        ],
+        [
+          359,
+          569
+        ],
+        [
+          385,
+          574
+        ],
+        [
+          392,
+          344
+        ],
+        [
+          367,
+          287
+        ]
+      ]
+    }
   },
   "CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_2": {
     "file": "videos-camera/CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_2.MP4",
+    "start_time": "2025-12-11T12:10:03",
     "flip": false,
-    "zones": {}
+    "zones": {
+      "zone_alerte": [
+        [
+          643,
+          21
+        ],
+        [
+          594,
+          54
+        ],
+        [
+          584,
+          280
+        ],
+        [
+          626,
+          340
+        ],
+        [
+          647,
+          20
+        ]
+      ]
+    }
   },
   "CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_1": {
     "file": "videos-camera/CAMERA_FIN_COULOIR_GAUCHE_REZ_PARTIE_1.MP4",
+    "start_time": "2025-12-11T12:17:33",
     "flip": false,
-    "zones": {}
+    "zones": {
+      "zone_alerte": [
+        [
+          667,
+          205
+        ],
+        [
+          616,
+          599
+        ],
+        [
+          651,
+          656
+        ],
+        [
+          715,
+          180
+        ],
+        [
+          577,
+          269
+        ],
+        [
+          546,
+          511
+        ],
+        [
+          559,
+          527
+        ],
+        [
+          594,
+          267
+        ]
+      ]
+    }
   },
   "CAMERA_DEVANTURE_SOUS_ARBRE": {
     "file": "videos-camera/CAMERA_DEVANTURE_SOUS_ARBRE.mp4",
+    "start_time": "2025-12-11T12:10:02",
     "flip": true,
-    "zones": {}
+    "zones": {
+      "zone_alerte": [
+        [
+          41,
+          480
+        ],
+        [
+          59,
+          598
+        ],
+        [
+          176,
+          570
+        ],
+        [
+          159,
+          473
+        ],
+        [
+          40,
+          481
+        ]
+      ]
+    }
   },
   "CAMERA_DEVANTURE_PORTE_ENTREE": {
     "file": "videos-camera/CAMERA_DEVANTURE_PORTE_ENTREE.mp4",
+    "start_time": "2025-12-11T12:10:37",
     "flip": false,
-    "rotate": 90,
+    "rotate": -90,
     "zones": {}
   },
   "CAMERA_DEBUT_COULOIR_DROIT": {
     "file": "videos-camera/CAMERA_DEBUT_COULOIR_DROIT.mp4",
+    "start_time": "2025-12-11T12:10:00",
     "flip": true,
-    "zones": {}
+    "zones": {
+      "zone_alerte": [
+        [
+          239,
+          566
+        ],
+        [
+          238,
+          748
+        ],
+        [
+          269,
+          718
+        ],
+        [
+          270,
+          571
+        ],
+        [
+          240,
+          567
+        ]
+      ]
+    }
   },
   "CAMERA_FIN_COULOIR_DROIT": {
     "file": "videos-camera/CAMERA_FIN_COULOIR_DROIT.mp4",
+    "start_time": "2025-12-11T12:10:08",
     "flip": true,
     "zones": {}
   },
   "CAMERA_HALL_PORTE_GAUCHE": {
     "file": "videos-camera/CAMERA_HALL_PORTE_GAUCHE.mp4",
+    "start_time": "2025-12-11T12:09:57",
     "flip": false,
-    "zones": {}
+    "zones": {
+      "zone_alerte": [
+        [
+          386,
+          485
+        ]
+      ]
+    }
   },
   "CAMERA_HALL_PORTE_DROITE": {
     "file": "videos-camera/CAMERA_HALL_PORTE_DROITE.MP4",
+    "start_time": "2025-12-11T12:09:23",
     "flip": false,
     "zones": {}
   },
   "CAMERA_HALL_PORTE_ENTREE": {
     "file": "videos-camera/CAMERA_HALL_PORTE_ENTREE.mp4",
+    "start_time": "2025-12-11T12:10:28",
     "flip": false,
-    "zones": {}
+    "zones": {
+      "zone_alerte": [
+        [
+          1756,
+          351
+        ],
+        [
+          1715,
+          360
+        ],
+        [
+          1700,
+          734
+        ],
+        [
+          1743,
+          789
+        ],
+        [
+          1758,
+          352
+        ]
+      ]
+    }
   }
 }

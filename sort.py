@@ -4,11 +4,12 @@ from scipy.optimize import linear_sum_assignment
 from collections import deque
 
 class SimpleTracker:
-    def __init__(self, max_lost=10, trace_len=50):
+    def __init__(self, max_lost=10, trace_len=50, iou_threshold=0.3):
         self.next_id = 1
         self.tracks = {}  # id -> [bbox, lost, deque(trace)]
         self.max_lost = max_lost
         self.trace_len = trace_len
+        self.iou_threshold = iou_threshold
 
     def _centroid(self, b):
         return [int((b[0]+b[2])//2), int((b[1]+b[3])//2)]
@@ -47,7 +48,7 @@ class SimpleTracker:
         assigned_dets = set()
 
         for r, c in zip(row_ind, col_ind):
-            if cost[r, c] < 0.7:
+            if cost[r, c] < (1.0 - self.iou_threshold):
                 tid = trk_ids[r]
                 self.tracks[tid][0] = det_boxes[c]
                 self.tracks[tid][1] = 0
