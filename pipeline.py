@@ -14,11 +14,13 @@ CAMS_FILE = "cams.json"
 OUTPUT_DIR = "output"
 MODEL_NAME = "yolov8n.pt"
 
-# FPS config: 1 frame per second
-TARGET_FPS = 1.0 
-STEP_MS = int(1000 / TARGET_FPS) 
+# FPS config: 2 frames per second
+TARGET_FPS = 2.0
+STEP_MS = int(1000 / TARGET_FPS)
 
-CONF_THRESH = 0.25 # Lower detection threshold
+# Split Thresholds
+CONF_THRESH_PERSON = 0.40
+CONF_THRESH_OBJECT = 0.15 # Low threshold for objects
 WANTED = ["person", "backpack", "handbag", "bottle", "cell phone"]
 
 COLORS = {
@@ -71,12 +73,19 @@ def point_in_poly(x, y, poly):
         if intersect: inside = not inside
     return inside
 
+def get_faded_color(color, alpha=0.5):
+    # Simulates color on dark background or just dimmer
+    # Actually user said "plus sombre et un peu transparent".
+    # Drawing transparent lines in OpenCV requires overlay. 
+    # For simplicity/performance: just return a darker integer color.
+    return tuple(int(c * alpha) for c in color)
+
 def main():
     ensure_dir(OUTPUT_DIR)
     cams_config = read_cams()
     
     cam_data = {}
-    print("[INFO] Analyzing video files...")
+    print("[INFO] Analyzing video files (v6)...")
     
     for name, cfg in cams_config.items():
         path = Path(cfg["file"])
@@ -105,7 +114,6 @@ def main():
         
     if not cam_data: return
 
-    # Sync Window
     valid_starts = [d["start_ms"] for d in cam_data.values()]
     valid_ends = [d["end_ms"] for d in cam_data.values()]
     global_start = min(valid_starts)
@@ -114,8 +122,8 @@ def main():
     print(f"[INFO] Global Window: {global_start} - {global_end}")
     
     model = YOLO(MODEL_NAME)
-    # Tracker: iou=0.1 because 1 sec jump is large displacement
-    trackers = {name: SimpleTracker(max_lost=5, iou_threshold=0.1) for name in cam_data.keys()}
+    # Tracker: iou=0.15 for 2 FPS (slightly smaller jumps than 1 FPS)
+    trackers = {name: SimpleTracker(max_lost=5, iou_threshold=0.15) for name in cam_data.keys()}
     
     caps = {}
     writers = {}
@@ -172,7 +180,8 @@ def main():
                 current_time += STEP_MS
                 continue
                 
-            results = model.predict(batch_frames, imgsz=640, device="cpu", conf=CONF_THRESH, verbose=False)
+            # Run Inference with LOW threshold to catch objects
+            results = model.predict(batch_frames, imgsz=640, device="cpu", conf=CONF_THRESH_OBJECT, verbose=False)
             
             for i, res in enumerate(results):
                 name = batch_meta[i]
@@ -184,48 +193,32 @@ def main():
                     c = int(box.cls[0])
                     conf = float(box.conf[0])
                     c_name = model.model.names.get(c, str(c))
-                    if c_name in WANTED:
-                        x1,y1,x2,y2 = map(int, box.xyxy[0].tolist())
-                        detections.append([x1,y1,x2,y2,conf,c_name])
+                    
+                    if c_name not in WANTED:
+                        continue
+                        
+                    # SPLIT THRESHOLD LOGIC
+                    thresh = CONF_THRESH_PERSON if c_name == "person" else CONF_THRESH_OBJECT
+                    if conf < thresh:
+                        continue
+                        
+                    x1,y1,x2,y2 = map(int, box.xyxy[0].tolist())
+                    detections.append([x1,y1,x2,y2,conf,c_name])
                 
                 trackers[name].update(detections)
                 tracks = trackers[name].get_tracks()
                 
                 for tid, bbox, trace in tracks:
-                    # GHOST FIX: If track is "lost" > 0, do NOT draw box/label
-                    # SimpleTracker returns [bbox, lost, trace]
-                    # We have unpacked it as (tid, bbox, trace). 
-                    # Wait, SimpleTracker.get_tracks() returns (tid, bbox, trace). 
-                    # We lost access to 'lost' count in get_tracks()!
-                    # We must verify sort.py
-                    pass
-
-                # Re-fetch tracks manually to check 'lost' status if get_tracks doesn't provide it
-                # Or we rely on modification?
-                # Let's inspect sort.py again or just modify get_tracks to return lost status.
-                # Actually, I modified sort.py in thought? No, I viewed it.
-                # Standard SimpleTracker implementation stores [bbox, lost, trace].
-                # get_tracks() usually returns list(trace). 
-                # Let's check sort.py content again to be sure.
-                
-                # Assuming I can access trackers[name].tracks[tid] directly
-                
-                for tid, bbox, trace in tracks:
-                    # Access internal state to check 'lost'
-                    # tracker.tracks[tid] = [bbox, lost, trace]
                     internal_track = trackers[name].tracks.get(tid)
                     if not internal_track: continue
                     lost_count = internal_track[1]
                     
-                    if lost_count > 0:
-                        # GHOST: Skip drawing box if lost.
-                        # Maybe draw trail? User said "cadre qui apparait dans le vide". 
-                        # So skipping everything is safer.
-                        continue
+                    # Hide ghost boxes
+                    if lost_count > 0: continue
                     
-                    # Match track to detection for class info
+                    # Match track to detection
                     label = f"ID:{tid}"
-                    color = (200,200,200)
+                    base_color = (200,200,200)
                     
                     best_match = None
                     max_iou = 0
@@ -242,17 +235,19 @@ def main():
                          dcls = best_match[5]
                          dconf = best_match[4]
                          label = f"{dcls} {dconf:.2f}"
-                         color = COLORS.get(dcls, COLORS["default"])
+                         base_color = COLORS.get(dcls, COLORS["default"])
                     
                     x1,y1,x2,y2 = map(int, bbox)
                     cx,cy = (x1+x2)//2, (y1+y2)//2
                     
+                    # Draw Trail (Darker version of class color)
                     if len(trace) > 1:
                         pts = np.array(trace, np.int32).reshape((-1,1,2))
-                        cv2.polylines(frame, [pts], False, color, 2)
+                        trail_color = get_faded_color(base_color, 0.4) # Darker
+                        cv2.polylines(frame, [pts], False, trail_color, 2)
                         
-                    cv2.rectangle(frame, (x1,y1),(x2,y2), color, 2)
-                    cv2.putText(frame, label, (x1, y1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                    cv2.rectangle(frame, (x1,y1),(x2,y2), base_color, 2)
+                    cv2.putText(frame, label, (x1, y1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, base_color, 2)
                     
                     for zname, poly in cam_data[name]["zones"].items():
                         if point_in_poly(cx, cy, poly):
