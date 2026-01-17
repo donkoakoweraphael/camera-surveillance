@@ -14,8 +14,8 @@ CAMS_FILE = "cams.json"
 OUTPUT_DIR = "output"
 MODEL_NAME = "yolov8n.pt"
 
-# FPS config: 2 frames per second
-TARGET_FPS = 2.0
+# FPS config: 10 frames per second (Fluid Surveillance)
+TARGET_FPS = 10.0
 STEP_MS = int(1000 / TARGET_FPS)
 
 # Split Thresholds
@@ -74,10 +74,6 @@ def point_in_poly(x, y, poly):
     return inside
 
 def get_faded_color(color, alpha=0.5):
-    # Simulates color on dark background or just dimmer
-    # Actually user said "plus sombre et un peu transparent".
-    # Drawing transparent lines in OpenCV requires overlay. 
-    # For simplicity/performance: just return a darker integer color.
     return tuple(int(c * alpha) for c in color)
 
 def main():
@@ -85,7 +81,7 @@ def main():
     cams_config = read_cams()
     
     cam_data = {}
-    print("[INFO] Analyzing video files (v6)...")
+    print("[INFO] Analyzing video files (v7 - 10 FPS)...")
     
     for name, cfg in cams_config.items():
         path = Path(cfg["file"])
@@ -122,8 +118,9 @@ def main():
     print(f"[INFO] Global Window: {global_start} - {global_end}")
     
     model = YOLO(MODEL_NAME)
-    # Tracker: iou=0.15 for 2 FPS (slightly smaller jumps than 1 FPS)
-    trackers = {name: SimpleTracker(max_lost=5, iou_threshold=0.15) for name in cam_data.keys()}
+    # Tracker: iou=0.3 because at 10 FPS objects are close
+    # max_lost=10 = 1 second of persistence
+    trackers = {name: SimpleTracker(max_lost=10, iou_threshold=0.3) for name in cam_data.keys()}
     
     caps = {}
     writers = {}
@@ -160,6 +157,7 @@ def main():
                 
                 if rel_ms < 0 or rel_ms > data["duration_ms"]:
                     w, h = writer_dims[name]
+                    # Black frame for syncing
                     writers[name].write(np.zeros((h, w, 3), dtype=np.uint8))
                     continue
                 
@@ -180,7 +178,7 @@ def main():
                 current_time += STEP_MS
                 continue
                 
-            # Run Inference with LOW threshold to catch objects
+            # INFERENCE
             results = model.predict(batch_frames, imgsz=640, device="cpu", conf=CONF_THRESH_OBJECT, verbose=False)
             
             for i, res in enumerate(results):
@@ -194,13 +192,11 @@ def main():
                     conf = float(box.conf[0])
                     c_name = model.model.names.get(c, str(c))
                     
-                    if c_name not in WANTED:
-                        continue
+                    if c_name not in WANTED: continue
                         
-                    # SPLIT THRESHOLD LOGIC
+                    # Split Thresholds
                     thresh = CONF_THRESH_PERSON if c_name == "person" else CONF_THRESH_OBJECT
-                    if conf < thresh:
-                        continue
+                    if conf < thresh: continue
                         
                     x1,y1,x2,y2 = map(int, box.xyxy[0].tolist())
                     detections.append([x1,y1,x2,y2,conf,c_name])
@@ -213,10 +209,8 @@ def main():
                     if not internal_track: continue
                     lost_count = internal_track[1]
                     
-                    # Hide ghost boxes
-                    if lost_count > 0: continue
+                    if lost_count > 0: continue # Ghost Fix
                     
-                    # Match track to detection
                     label = f"ID:{tid}"
                     base_color = (200,200,200)
                     
@@ -240,10 +234,10 @@ def main():
                     x1,y1,x2,y2 = map(int, bbox)
                     cx,cy = (x1+x2)//2, (y1+y2)//2
                     
-                    # Draw Trail (Darker version of class color)
+                    # Trail
                     if len(trace) > 1:
                         pts = np.array(trace, np.int32).reshape((-1,1,2))
-                        trail_color = get_faded_color(base_color, 0.4) # Darker
+                        trail_color = get_faded_color(base_color, 0.4) 
                         cv2.polylines(frame, [pts], False, trail_color, 2)
                         
                     cv2.rectangle(frame, (x1,y1),(x2,y2), base_color, 2)
@@ -264,7 +258,8 @@ def main():
                 writers[name].write(frame)
                 
             current_time += STEP_MS
-            if (current_time - global_start) % 20000 < STEP_MS:
+            # Print progress less frequently (~every 200 frames / 20 seconds of video)
+            if (current_time - global_start) % (200 * STEP_MS) < STEP_MS:
                  prog = (current_time - global_start)/(global_end-global_start+1e-9)*100
                  print(f"[PROG] {prog:.1f}%")
 
